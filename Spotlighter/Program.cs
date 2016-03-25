@@ -23,7 +23,9 @@ namespace Spotlighter
             if (!Directory.Exists(vertDest))
                 Directory.CreateDirectory(vertDest);
 
-            Console.WriteLine($"Copying files...");
+            Console.WriteLine($"Copying files from '{source}'...");
+            Console.WriteLine($"{Directory.GetFiles(source).Length} files found");
+            int count = 0;
             foreach (var file in Directory.EnumerateFiles(source))
             {
                 Console.Write(".");
@@ -39,6 +41,8 @@ namespace Spotlighter
                             File.Copy(file, Path.Combine(horizDest, Path.ChangeExtension(Path.GetFileName(file), "jpg")));
                         else
                             File.Copy(file, Path.Combine(vertDest, Path.ChangeExtension(Path.GetFileName(file), "jpg")));
+
+                        count++;
                     }
                 }
                 catch (IOException)
@@ -46,7 +50,9 @@ namespace Spotlighter
                     // File already exists
                 }
             }
-            Console.WriteLine("Done");
+
+            Console.WriteLine();
+            Console.WriteLine($"Done, copied {count} new images");
 
             Thread.Sleep(5000);
         }
