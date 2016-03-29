@@ -14,7 +14,7 @@ namespace Spotlighter
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 SPOTLIGHT_PATH);
 
-            var destination = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+            var destination = args != null && args.Length == 1 ? args[0] : Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             var horizDest = Path.Combine(destination, @"Spotlighter\Landscape");
             var vertDest = Path.Combine(destination, @"Spotlighter\Vertical");
 
