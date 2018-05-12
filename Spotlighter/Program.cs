@@ -12,10 +12,10 @@ namespace Spotlighter
 
         static void Main(string[] args)
         {
-            var source = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                SPOTLIGHT_PATH);
-
+            //var source = Path.Combine(
+            //    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            //    SPOTLIGHT_PATH);
+            var source = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), @"Spotlighter2\Vertical");
             var destination = args != null && args.Length == 1 ? args[0] : Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             var horizDest = Path.Combine(destination, @"Spotlighter\Landscape");
             var vertDest = Path.Combine(destination, @"Spotlighter\Vertical");
@@ -52,6 +52,7 @@ namespace Spotlighter
                     var sourceHash = CalculateMD5(file);
                     if (destHashes.Contains(sourceHash))
                         continue;
+                    destHashes.Add(sourceHash);
 
                     // Handle screen based size
                     if (fInfo.Length > 400 * 1024)
