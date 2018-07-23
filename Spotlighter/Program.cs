@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 
@@ -12,10 +13,10 @@ namespace Spotlighter
 
         static void Main(string[] args)
         {
-            //var source = Path.Combine(
-            //    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            //    SPOTLIGHT_PATH);
-            var source = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), @"Spotlighter2\Vertical");
+            Console.CursorVisible = false;
+            var source = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                SPOTLIGHT_PATH);
             var destination = args != null && args.Length == 1 ? args[0] : Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             var horizDest = Path.Combine(destination, @"Spotlighter\Landscape");
             var vertDest = Path.Combine(destination, @"Spotlighter\Vertical");
@@ -25,18 +26,7 @@ namespace Spotlighter
             if (!Directory.Exists(vertDest))
                 Directory.CreateDirectory(vertDest);
 
-            var destHashes = new List<string>();
-            Console.WriteLine("Computing destination hashes...");
-            foreach (var file in Directory.EnumerateFiles(horizDest))
-            {
-                Console.Write(".");
-                destHashes.Add(CalculateMD5(file));
-            }
-            foreach (var file in Directory.EnumerateFiles(vertDest))
-            {
-                Console.Write(".");
-                destHashes.Add(CalculateMD5(file));
-            }
+            var destHashes = ComputeHashes(new string[] { horizDest, vertDest });
 
             Console.WriteLine("");
             Console.WriteLine($"Copying files from '{source}'...");
@@ -82,6 +72,37 @@ namespace Spotlighter
             Console.WriteLine($"Done, copied {count} new images");
 
             Thread.Sleep(5000);
+
+            Console.CursorVisible = true;
+        }
+
+        private static List<string> ComputeHashes(string[] destPaths)
+        {
+            var counter = 0;
+            var percentComplete = 0;
+            var destHashes = new List<string>();
+
+            var numDestinationfiles = destPaths.Sum(x => Directory.GetFiles(x).Length);
+            Console.WriteLine($"Computing destination hashes: {numDestinationfiles} files");
+
+            foreach (var destPath in destPaths)
+            {
+                foreach (var file in Directory.EnumerateFiles(destPath))
+                {
+                    destHashes.Add(CalculateMD5(file));
+                    counter++;
+                    var newPercentComplete = 100 - (int)(((numDestinationfiles - counter) / (float)numDestinationfiles) * 100);
+
+                    if (newPercentComplete != percentComplete)
+                    {
+                        percentComplete = newPercentComplete;
+                        Console.CursorLeft = 0;
+                        Console.Write($"{percentComplete}%");
+                    }
+                }
+            }
+
+            return destHashes;
         }
 
         private static string CalculateMD5(string filename)
